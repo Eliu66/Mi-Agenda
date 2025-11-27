@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini Agenda</title>
+
+  <!-- Fuente bonita (opcional) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg1: #0f172a;
+      --bg2: #1e293b;
+      --card: rgba(15, 23, 42, 0.92);
+      --card-soft: rgba(15, 23, 42, 0.75);
+      --accent: #6366f1;
+      --accent-soft: rgba(99, 102, 241, 0.15);
+      --accent-strong: #a855f7;
+      --border-subtle: rgba(148, 163, 184, 0.35);
+      --muted: #9ca3af;
+      --text-main: #e5e7eb;
+      --danger: #f97373;
+      --radius-lg: 18px;
+      --radius-md: 10px;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.55);
+      --shadow-hover: 0 24px 60px rgba(15, 23, 42, 0.85);
+      --transition-fast: 180ms ease-out;
+      --transition-med: 220ms ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at top left, #4f46e5 0, transparent 52%),
+        radial-gradient(circle at bottom right, #f97316 0, transparent 50%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 980px;
+    }
+
+    .card {
+      position: relative;
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 22px 22px 18px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      backdrop-filter: blur(18px);
+      transition:
+        transform var(--transition-med),
+        box-shadow var(--transition-med),
+        border-color var(--transition-med),
+        background var(--transition-med);
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at top right, rgba(148, 163, 255, 0.35), transparent 55%);
+      opacity: 0;
+      transition: opacity var(--transition-med);
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+      border-color: rgba(129, 140, 248, 0.75);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin: 0 0 6px;
+      letter-spacing: .02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1::before {
+      content: "📒";
+      font-size: 1.4rem;
+    }
+
+    h3 {
+      margin: 0 0 6px;
+      font-size: 0.98rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    h3::before {
+      content: "Tareas";
+      display: none; /* sólo uso visual del texto */
+    }
+
+    label {
+      display: block;
+      font-size: 0.78rem;
+      margin-top: 10px;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      margin-top: 5px;
+      font-size: 0.9rem;
+      background: rgba(15, 23, 42, 0.7);
+      color: var(--text-main);
+      outline: none;
+      transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast),
+        transform 130ms ease-out;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(148, 163, 184, 0.75);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+      max-height: 180px;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.7);
+      background: rgba(15, 23, 42, 0.95);
+      transform: translateY(-1px);
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 0.87rem;
+      border-radius: 999px;
+      padding: 9px 14px;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast),
+        color var(--transition-fast),
+        border-color var(--transition-fast),
+        opacity var(--transition-fast);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: none !important;
+    }
+
+    /* Botón principal */
+    #btnLogin,
+    #btnAdd {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #f9fafb;
+      box-shadow: 0 12px 22px rgba(79, 70, 229, 0.5);
+      font-weight: 500;
+      letter-spacing: .01em;
+    }
+
+    #btnLogin:hover,
+    #btnAdd:hover {
+      box-shadow: 0 16px 30px rgba(79, 70, 229, 0.7);
+      transform: translateY(-1px);
+    }
+
+    /* Botones tipo enlace */
+    .link {
+      background: transparent;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      color: var(--accent-strong);
+      font-size: 0.8rem;
+      padding: 6px 10px;
+    }
+
+    .link:hover {
+      background: rgba(148, 163, 255, 0.18);
+      border-color: rgba(148, 163, 255, 0.45);
+    }
+
+    .small {
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0 0;
+      max-height: 312px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    ul::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ul::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: 999px;
+    }
+
+    ul::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.7);
+      border-radius: 999px;
+    }
+
+    li {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: var(--radius-md);
+      padding: 9px 10px;
+      margin-bottom: 7px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.55);
+      gap: 8px;
+      transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+    }
+
+    li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--accent), var(--accent-strong));
+      opacity: 0.7;
+    }
+
+    li:hover {
+      transform: translateY(-1px);
+      border-color: rgba(129, 140, 248, 0.9);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.9);
+    }
+
+    li .meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    li strong {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .actions {
+      display: flex;
+      gap: 2px;
+      align-items: center;
+    }
+
+    .actions button {
+      border-radius: 999px;
+      font-size: 0.8rem;
+      padding: 5px 8px;
+      border: 1px solid transparent;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--muted);
+      box-shadow: none;
+    }
+
+    .actions button:hover {
+      border-color: rgba(148, 163, 184, 0.9);
+      background: rgba(30, 64, 175, 0.55);
+      color: #e5e7eb;
+    }
+
+    .actions button:first-child {
+      color: #4ade80;
+    }
+
+    .actions button:first-child:hover {
+      border-color: rgba(74, 222, 128, 0.7);
+      background: rgba(22, 101, 52, 0.65);
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 12px;
+    }
+
+    .topbar span.small {
+      padding: 3px 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .danger {
+      color: var(--danger);
+      border-color: rgba(248, 113, 113, 0.3) !important;
+    }
+
+    .danger:hover {
+      background: rgba(248, 113, 113, 0.08);
+      border-color: rgba(248, 113, 113, 0.55) !important;
+    }
+
+    /* Layout específico de la agenda */
+    #loginCard {
+      width: 360px;
+      background: var(--card-soft);
+    }
+
+    #agendaCard {
+      width: 760px;
+      background: var(--card);
+      animation: fadeInUp 260ms ease-out;
+    }
+
+    #agendaCard .topbar h1::before {
+      content: "🗓️";
+    }
+
+    #loginCard .topbar h1::before {
+      content: "🔐";
+    }
+
+    .layout {
+      display: flex;
+      gap: 14px;
+    }
+
+    .layout-left {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .layout-right {
+      width: 380px;
+      min-width: 0;
+    }
+
+    .badge-tip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .badge-tip strong {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsivo */
+    @media (max-width: 840px) {
+      body {
+        align-items: flex-start;
+        padding-top: 26px;
+      }
+
+      .center {
+        align-items: stretch;
+      }
+
+      #agendaCard {
+        width: 100%;
+      }
+
+      .layout {
+        flex-direction: column;
+      }
+
+      .layout-right {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 420px) {
+      #loginCard {
+        width: 100%;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="center">
+    <!-- Login -->
+    <div class="card" id="loginCard">
+      <div class="topbar">
+        <h1>Mini Agenda - Login</h1>
+        <div class="small">Bienvenido 👋</div>
+      </div>
+      <div>
+        <label>Usuario</label>
+        <input id="loginUser" placeholder="usuario" />
+        <label>Contraseña</label>
+        <input id="loginPass" type="password" placeholder="contraseña" />
+        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+          <button id="btnLogin">Ingresar</button>
+          <button class="link" id="btnShowRegister">Crear cuenta nueva</button>
+        </div>
+        <p class="small" style="margin-top:10px">
+          <span class="badge-tip">
+            Demo →
+            <span>Usuario: <strong>user</strong> / Contraseña: <strong>pass</strong></span>
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Agenda -->
+    <div class="card hidden" id="agendaCard">
+      <div class="topbar">
+        <h1>Mi Agenda</h1>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+          <span class="small" id="loggedAs"></span>
+          <button class="link" id="btnLogout">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <div class="layout">
+        <div class="layout-left">
+          <label>Título</label>
+          <input id="taskTitle" placeholder="Título de la actividad" />
+          <label>Descripción</label>
+          <textarea id="taskDesc" rows="3" placeholder="Detalles..."></textarea>
+          <label>Fecha y hora de vencimiento</label>
+          <input id="taskDue" type="datetime-local" />
+
+          <label>Recordatorio (minutos antes)</label>
+          <select id="reminderMinutes">
+            <option value="1">1 minuto</option>
+            <option value="5">5 minutos</option>
+            <option value="10" selected>10 minutos</option>
+            <option value="30">30 minutos</option>
+            <option value="60">1 hora</option>
+          </select>
+
+          <div class="row">
+            <button id="btnAdd">Agregar tarea</button>
+            <button id="btnRequestNotif" class="link">Permitir notificaciones</button>
+          </div>
+        </div>
+
+        <div class="layout-right">
+          <h3>Lista de tareas</h3>
+          <ul id="taskList"></ul>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="small">
+          Recordatorios automáticos cuando quedan
+          <span id="currentReminder" style="font-weight:500;color:#e5e7eb">10</span> minutos.
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="link" id="btnExport">Exportar tareas</button>
+          <button class="link danger" id="btnClearAll">Borrar todas</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ---------------------------
+// Utilidades y almacenamiento
+// ---------------------------
+const STORAGE_USERS = 'mini_agenda_users_v1';
+const STORAGE_SESSION = 'mini_agenda_session_v1';
+
+function loadUsers(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE_USERS) || '{}');
+  }catch(e){return {}}
+}
+function saveUsers(u){ localStorage.setItem(STORAGE_USERS, JSON.stringify(u)); }
+
+function getSession(){ return JSON.parse(localStorage.getItem(STORAGE_SESSION) || 'null'); }
+function setSession(s){ localStorage.setItem(STORAGE_SESSION, JSON.stringify(s)); }
+function clearSession(){ localStorage.removeItem(STORAGE_SESSION); }
+
+// bootstrap demo user
+(function bootstrap(){
+  const users = loadUsers();
+  if(!users['user']){
+    users['user'] = {password: 'pass', tasks: []};
+    saveUsers(users);
+  }
+})();
+
+// ---------------------------
+// DOM
+// ---------------------------
+const loginCard = document.getElementById('loginCard');
+const agendaCard = document.getElementById('agendaCard');
+const loginUser = document.getElementById('loginUser');
+const loginPass = document.getElementById('loginPass');
+const btnLogin = document.getElementById('btnLogin');
+const btnShowRegister = document.getElementById('btnShowRegister');
+const loggedAs = document.getElementById('loggedAs');
+const btnLogout = document.getElementById('btnLogout');
+const taskTitle = document.getElementById('taskTitle');
+const taskDesc = document.getElementById('taskDesc');
+const taskDue = document.getElementById('taskDue');
+const btnAdd = document.getElementById('btnAdd');
+const taskList = document.getElementById('taskList');
+const reminderMinutes = document.getElementById('reminderMinutes');
+const currentReminder = document.getElementById('currentReminder');
+const btnRequestNotif = document.getElementById('btnRequestNotif');
+const btnExport = document.getElementById('btnExport');
+const btnClearAll = document.getElementById('btnClearAll');
+
+let CHECK_INTERVAL = 30 * 1000; // cada 30 segundos
+let notifierSupported = 'Notification' in window;
+
+// ---------------------------
+// Login / Registro simple
+// ---------------------------
+function showAgenda(username){
+  loginCard.classList.add('hidden');
+  agendaCard.classList.remove('hidden');
+  loggedAs.textContent = 'Usuario: ' + username;
+  loadTasksFor(username);
+}
+
+btnLogin.addEventListener('click', ()=>{
+  const u = loginUser.value.trim();
+  const p = loginPass.value;
+  if(!u || !p){ alert('Ingrese usuario y contraseña'); return; }
+  const users = loadUsers();
+  if(users[u] && users[u].password === p){
+    setSession({user: u});
+    showAgenda(u);
+  }else{
+    if(confirm('Usuario no encontrado o contraseña incorrecta. ¿Desea registrarse con estos datos?')){
+      users[u] = {password: p, tasks: []};
+      saveUsers(users);
+      setSession({user: u});
+      showAgenda(u);
+    } else {
+      alert('Intente de nuevo.');
+    }
+  }
+});
+
+btnShowRegister.addEventListener('click', ()=>{
+  const u = prompt('Nombre de usuario nuevo:');
+  const p = prompt('Contraseña:');
+  if(u && p){
+    const users = loadUsers();
+    if(users[u]){ alert('Usuario ya existe'); return; }
+    users[u] = {password: p, tasks: []};
+    saveUsers(users);
+    alert('Usuario creado. Ya puede iniciar sesión.');
+  }
+});
+
+btnLogout.addEventListener('click', ()=>{
+  clearSession();
+  agendaCard.classList.add('hidden');
+  loginCard.classList.remove('hidden');
+});
+
+// ---------------------------
+// Tareas
+// ---------------------------
+function getTasksKey(username){ return `mini_agenda_tasks_${username}_v1`; }
+let currentUser = null;
+
+function loadTasksFor(username){
+  const raw = localStorage.getItem(getTasksKey(username));
+  const tasks = raw ? JSON.parse(raw) : [];
+  currentUser = username;
+  renderTasks(tasks);
+}
+
+function saveTasksFor(username, tasks){
+  localStorage.setItem(getTasksKey(username), JSON.stringify(tasks));
+  renderTasks(tasks);
+}
+
+function renderTasks(tasks){
+  taskList.innerHTML = '';
+  tasks.sort((a,b)=> new Date(a.due) - new Date(b.due));
+  tasks.forEach(t=>{
+    const li = document.createElement('li');
+    const left = document.createElement('div');
+    const right = document.createElement('div');
+    left.innerHTML = `<strong>${escapeHtml(t.title)}</strong><div class="meta">${escapeHtml(t.desc)}<br/>Vence: ${new Date(t.due).toLocaleString()}${t.done? ' • Completada':''}</div>`;
+    right.className = 'actions';
+    const btnDone = document.createElement('button'); btnDone.textContent = '✔'; btnDone.title = 'Marcar completada';
+    const btnDel = document.createElement('button'); btnDel.textContent = '🗑'; btnDel.title = 'Eliminar';
+    btnDone.addEventListener('click', ()=> toggleDone(t.id));
+    btnDel.addEventListener('click', ()=> deleteTask(t.id));
+    right.appendChild(btnDone); right.appendChild(btnDel);
+    li.appendChild(left); li.appendChild(right);
+    taskList.appendChild(li);
+  });
+}
+
+function escapeHtml(s){ return String(s||'').replace(/[&<>\"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" })[c]); }
+
+function addTask(){
+  const title = taskTitle.value.trim();
+  const desc = taskDesc.value.trim();
+  const due = taskDue.value;
+  const rem = parseInt(reminderMinutes.value,10) || 10;
+  if(!title || !due){ alert('Ingrese título y fecha/hora de vencimiento'); return; }
+  const users = loadUsers();
+  const u = getSession()?.user;
+  if(!u){ alert('Sesión expirada'); return; }
+  const key = getTasksKey(u);
+  const tasks = JSON.parse(localStorage.getItem(key) || '[]');
+  const task = { id: Date.now().toString(), title, desc, due: new Date(due).toISOString(), reminder: rem, done:false, notified:false };
+  tasks.push(task);
+  saveTasksFor(u, tasks);
+  taskTitle.value=''; taskDesc.value=''; taskDue.value='';
+}
+
+btnAdd.addEventListener('click', addTask);
+
+function deleteTask(id){
+  const u = getSession()?.user; if(!u) return;
+  const key = getTasksKey(u); const tasks = JSON.parse(localStorage.getItem(key)||'[]');
+  const remaining = tasks.filter(t=> t.id !== id);
+  if(confirm('Eliminar tarea?')){ saveTasksFor(u, remaining); }
+}
+function toggleDone(id){
+  const u = getSession()?.user; if(!u) return;
+  const key = getTasksKey(u); const tasks = JSON.parse(localStorage.getItem(key)||'[]');
+  for(const t of tasks) if(t.id===id) { t.done = !t.done; }
+  saveTasksFor(u, tasks);
+}
+
+// Export y borrar
+btnExport.addEventListener('click', ()=>{
+  const u = getSession()?.user; if(!u) return alert('No hay sesión');
+  const tasks = JSON.parse(localStorage.getItem(getTasksKey(u))||'[]');
+  const blob = new Blob([JSON.stringify(tasks,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `tareas_${u}.json`; a.click(); URL.revokeObjectURL(url);
+});
+
+btnClearAll.addEventListener('click', ()=>{
+  const u = getSession()?.user; if(!u) return;
+  if(confirm('Borrar todas las tareas?')){ localStorage.removeItem(getTasksKey(u)); renderTasks([]); }
+});
+
+// ---------------------------
+// Notificaciones y comprobación periódica
+// ---------------------------
+function requestNotificationPermission(){
+  if(!notifierSupported){ alert('Las notificaciones no son soportadas en este navegador.'); return; }
+  Notification.requestPermission().then(p => { alert('Permiso de notificaciones: ' + p); });
+}
+btnRequestNotif.addEventListener('click', requestNotificationPermission);
+
+function sendNotification(title, body){
+  if(notifierSupported && Notification.permission === 'granted'){
+    new Notification(title, {body});
+  } else {
+    // fallback visual
+    alert(title + '\n' + body);
+  }
+}
+
+function checkDueTasks(){
+  const session = getSession(); if(!session) return;
+  const tasks = JSON.parse(localStorage.getItem(getTasksKey(session.user))||'[]');
+  const now = Date.now();
+  let changed = false;
+  for(const t of tasks){
+    if(t.done) continue;
+    const due = new Date(t.due).getTime();
+    const remMs = (t.reminder || parseInt(reminderMinutes.value,10) || 10) * 60 * 1000;
+    if(!t.notified && (due - now) <= remMs && (due - now) > -60*1000){
+      sendNotification('Tarea próxima a vencer', `${t.title} • Vence: ${new Date(t.due).toLocaleString()}`);
+      t.notified = true; changed = true;
+    }
+    if(!t.notified && now - due > 0 && now - due < 24*60*60*1000){
+      sendNotification('Tarea vencida', `${t.title} ya venció (${new Date(t.due).toLocaleString()})`);
+      t.notified = true; changed = true;
+    }
+  }
+  if(changed) saveTasksFor(session.user, tasks);
+}
+
+// Iniciar comprobador en intervalos
+setInterval(()=>{
+  checkDueTasks();
+}, CHECK_INTERVAL);
+
+// Actualizar contador de recordatorio mostrado
+reminderMinutes.addEventListener('change', ()=>{ currentReminder.textContent = reminderMinutes.value; });
+currentReminder.textContent = reminderMinutes.value;
+
+// Autologin si ya hay sesión
+(function autoSession(){
+  const s = getSession();
+  if(s && s.user){ showAgenda(s.user); }
+})();
+
+// Guardar tasks al cerrar pestaña (forzar que notified se preserve)
+window.addEventListener('beforeunload', ()=>{
+  const s = getSession(); if(!s) return;
+  const tasks = JSON.parse(localStorage.getItem(getTasksKey(s.user))||'[]');
+  localStorage.setItem(getTasksKey(s.user), JSON.stringify(tasks));
+});
+
+// Permitir crear tarea con Enter
+taskTitle.addEventListener('keydown', (e)=>{ if(e.key==='Enter') addTask(); });
+
+</script>
+</body>
+</html>
